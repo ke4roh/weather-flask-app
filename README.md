@@ -1,4 +1,9 @@
-# TUTORIAL: Create an application with websockets and flask
-Code for Websockets tutorial using flask
+# Weather radio UI
 
-Code for the [tutorial about using flask and websockets](https://tutorials.technology/tutorials/61-Create-an-application-with-websockets-and-flask.html)
+# Running
+run.sh
+
+Submit a message to the server: 
+
+   curl -X POST http://localhost:5000/alert --header "Content-type: application/json" --data-binary '{"alert":"Bananas are expensive."}'
+
