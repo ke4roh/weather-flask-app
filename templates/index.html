@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather App</title>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/weather-icons-wind.min.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/weather-icons.min.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body>
+    <nav role="navigation">
+      <div id="menuToggle">
+        <!-- A fake / hidden checkbox is used as click receiver-->
+        <input type="checkbox" />
+
+        <!-- spans to act as a hamburger. -->
+        <span></span>
+        <span></span>
+        <span></span>
+
+        <div id="menu">
+            <div>
+                <strong>Dewp: </strong> {{weather.currentobservation.Dewp}} °F
+            </div>
+            <div>
+                <strong>Relh: </strong> {{weather.currentobservation.Relh}} %
+            </div>
+            <div>
+                <strong>Winds:</strong> {{weather.currentobservation.Winds}} mph
+            </div>
+            <div class="text-center">
+                <strong>Gust:</strong> {{weather.currentobservation.Gust}} mph
+            </div>
+            <div class="text-center">
+                <strong>Visibility:</strong> {{weather.currentobservation.Visibility}} mi
+            </div>
+
+            <ul>
+              <a href="#"><li>Setup</li></a>
+              <a href="#"><li>About</li></a>
+              <a href="#"><li>Contact</li></a>
+            </ul>
+            <div>{{weather.currentobservation.id}} station, {{weather.currentobservation.name}}</div>
+        </div>
+      </div>
+    </nav>
+
+    <section id="tornado">
+        <i class="icon wi wi-tornado"></i>
+        <div><strong id="message">test message</strong></div>
+    </section>
+    <section id="normal">
+        <div style="text-align: center">
+            <h4 style="text-align: center">{{weather.currentobservation.Date}}</h4>
+            <p>{{weather.currentobservation.Weather}}</p>
+            <i id="icon" class=""></i>
+            <h2 style="text-align: center">{{weather.currentobservation.Temp}} °F</h2>
+        </div>
+    </section>
+
+    <div>
+        <button type="button" onclick="json_button()">Json Message</button>
+        <button type="button" onclick="alert_button()">Alert Message</button>
+    </div>
+
+<script>
+
+    var temperature = {{weather.currentobservation.Temp}};
+
+    // Change background color based on Dave Thompson’s palette
+    if (temperature < -16) {
+       document.body.style.backgroundColor = 'rgb(10,50,120)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= -16 || temperature < -10) {
+       document.body.style.backgroundColor = 'rgb(15,75,165)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= -10 || temperature < -4) {
+       document.body.style.backgroundColor = 'rgb(30,110,200)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= -4 || temperature < 2) {
+       document.body.style.backgroundColor = 'rgb(60,160,240)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= 2 || temperature < 8) {
+       document.body.style.backgroundColor = 'rgb(80,180,250)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= 8 || temperature < 14) {
+       document.body.style.backgroundColor = 'rgb(130,210,255)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= 14 || temperature < 20) {
+       document.body.style.backgroundColor = 'rgb(160,240,255)';
+       document.body.style.color = '#000';
+    } else if (temperature >= 20 || temperature < 26) {
+       document.body.style.backgroundColor = 'rgb(200,250,255)';
+       document.body.style.color = '#000';
+    } else if (temperature >= 26 || temperature < 32) {
+       document.body.style.backgroundColor = 'rgb(230,255,255)';
+       document.body.style.color = '#000';
+    } else if (temperature >= 32 || temperature < 38) {
+       document.body.style.backgroundColor = 'rgb(255,250,220)';
+       document.body.style.color = '#000';
+    } else if (temperature >= 38 || temperature < 44) {
+       document.body.style.backgroundColor = 'rgb(255,232,120)';
+       document.body.style.color = '#000';
+    } else if (temperature >= 44 || temperature < 50) {
+       document.body.style.backgroundColor = 'rgb(255,192,60)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= 50 || temperature < 56) {
+       document.body.style.backgroundColor = 'rgb(255,160,0)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= 56 || temperature < 62) {
+       document.body.style.backgroundColor = 'rgb(255,96,0)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= 62 || temperature < 68) {
+       document.body.style.backgroundColor = 'rgb(255,50,0)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= 68 || temperature < 74) {
+       document.body.style.backgroundColor = 'rgb(225,20,0)';
+       document.body.style.color = '#fff';
+    } else if (temperature >= 74 || temperature < 80) {
+       document.body.style.backgroundColor = 'rgb(192,0,0)';
+       document.body.style.color = '#fff';
+    } else if (temperature > 80) {
+       document.body.style.backgroundColor = 'rgb(165,0,0)';
+       document.body.style.color = '#fff';
+    }
+
+var weatherIcons = {
+    'Fair': 'wi-day-sunny' ,
+    'Clear': 'wi-day-sunny',
+    'Fair with Haze': 'wi-day-sunny',
+    'Clear with Haze': 'wi-day-sunny',
+    'Fair and Breezy': 'wi-day-sunny',
+    'Clear and Breezy': 'wi-day-sunny',
+    'Tornado/Water Spout': 'wi-tornado',
+    'Mostly Cloudy': 'wi-cloudy',
+    'Mostly Cloudy with Haze': 'wi-cloudy',
+    'Mostly Cloudy and Breezy': 'wi-cloudy',
+    'A Few Clouds': 'wi-cloud',
+    'A Few Clouds with Haze': 'wi-cloud',
+    'A Few Clouds and Breezy': 'wi-cloud',
+    'Partly Cloudy': 'wi-cloudy',
+    'Partly Cloudy with Haze': 'wi-cloudy',
+    'Partly Cloudy and Breezy': 'wi-cloudy',
+    'Funnel Cloud': 'wi-cloudy-gusts',
+    'Funnel Cloud in Vicinity': 'wi-cloudy-gusts',
+    'A Few Clouds and Windy': 'wi-cloudy',
+    'Partly Cloudy and Windy': 'wi-cloudy',
+    'Mostly Cloudy and Windy': 'wi-cloudy',
+    'Overcast': 'wi-cloudy',
+    'Overcast with Haze': 'wi-cloudy',
+    'Overcast and Breezy': 'wi-cloudy',
+    'Windy': 'wi-windy',
+    'Breezy': 'wi-windy',
+    'Fair and Windy': 'wi-windy',
+    'Overcast and Windy': 'wi-windy',
+    'Fog/Mist': 'wi-fog',
+    'Fog': 'wi-fog',
+    'Freezing Fog': 'wi-fog',
+    'Shallow Fog': 'wi-fog',
+    'Partial Fog': 'wi-fog',
+    'Patches of Fog': 'wi-fog',
+    'Fog in Vicinity': 'wi-fog',
+    'Freezing Fog in Vicinity': 'wi-fog',
+    'Shallow Fog in Vicinity': 'wi-fog',
+    'Partial Fog in Vicinity': 'wi-fog',
+    'Patches of Fog in Vicinity': 'wi-fog',
+    'Showers in Vicinity Fog': 'wi-fog',
+    'Light Freezing Fog': 'wi-fog',
+    'Heavy Freezing Fog': 'wi-fog',
+    'Freezing Rain': 'wi-rain-mix',
+    'Freezing Drizzle': 'wi-rain-mix',
+    'Light Freezing Rain': 'wi-rain-mix',
+    'Light Freezing Drizzle': 'wi-rain-mix',
+    'Heavy Freezing Rain': 'wi-rain-mix',
+    'Heavy Freezing Drizzle': 'wi-rain-mix',
+    'Freezing Rain in Vicinity': 'wi-rain-mix',
+    'Freezing Drizzle in Vicinity': 'wi-rain-mix',
+    'Ice Pellets': 'wi-hail',
+    'Light Ice Pellets': 'wi-hail',
+    'Heavy Ice Pellets': 'wi-hail',
+    'Ice Pellets in Vicinity': 'wi-hail',
+    'Showers Ice Pellets': 'wi-hail',
+    'Thunderstorm Ice Pellets': 'wi-hail',
+    'Ice Crystals': 'wi-hail',
+    'Hail': 'wi-hail',
+    'Small Hail/Snow Pellets': 'wi-hail',
+    'Light Small Hail/Snow Pellets': 'wi-hail',
+    'Heavy small Hail/Snow Pellets': 'wi-hail',
+    'Showers Hail': 'wi-hail',
+    'Hail Showers': 'wi-hail',
+    'Freezing Rain Snow': 'wi-sleet',
+    'Light Freezing Rain Snow': 'wi-sleet',
+    'Heavy Freezing Rain Snow': 'wi-sleet',
+    'Freezing Drizzle Snow': 'wi-sleet',
+    'Light Freezing Drizzle Snow': 'wi-sleet',
+    'Heavy Freezing Drizzle Snow': 'wi-sleet',
+    'Snow Freezing Rain': 'wi-sleet',
+    'Light Snow Freezing Rain': 'wi-sleet',
+    'Heavy Snow Freezing Rain': 'wi-sleet',
+    'Snow Freezing Drizzle': 'wi-sleet',
+    'Light Snow Freezing Drizzle': 'wi-sleet',
+    'Heavy Snow Freezing Drizzle': 'wi-sleet',
+    'Rain Ice Pellets': 'wi-rain-mix',
+    'Light Rain Ice Pellets': 'wi-rain-mix',
+    'Heavy Rain Ice Pellets': 'wi-rain-mix',
+    'Drizzle Ice Pellets': 'wi-rain-mix',
+    'Light Drizzle Ice Pellets': 'wi-rain-mix',
+    'Heavy Drizzle Ice Pellets': 'wi-rain-mix',
+    'Ice Pellets Rain': 'wi-rain-mix',
+    'Light Ice Pellets Rain': 'wi-rain-mix',
+    'Heavy Ice Pellets Rain': 'wi-rain-mix',
+    'Ice Pellets Drizzle': 'wi-rain-mix',
+    'Light Ice Pellets Drizzle': 'wi-rain-mix',
+    'Heavy Ice Pellets Drizzle': 'wi-rain-mix',
+    'Rain Snow': 'wi-rain-mix',
+    'Light Rain Snow': 'wi-rain-mix',
+    'Heavy Rain Snow': 'wi-rain-mix',
+    'Snow Rain': 'wi-rain-mix',
+    'Light Snow Rain': 'wi-rain-mix',
+    'Heavy Snow Rain': 'wi-rain-mix',
+    'Drizzle Snow': 'wi-rain-mix',
+    'Light Drizzle Snow': 'wi-rain-mix',
+    'Heavy Drizzle Snow': 'wi-rain-mix',
+    'Snow Drizzle': 'wi-rain-mix',
+    'Light Snow Drizzle': 'wi-rain-mix',
+    'Heavy Drizzle Snow': 'wi-rain-mix',
+    'Rain Showers': 'wi-showers',
+    'Light Rain Showers': 'wi-showers',
+    'Light Rain and Breezy': 'wi-showers',
+    'Heavy Rain Showers': 'wi-showers',
+    'Rain Showers in Vicinity': 'wi-showers',
+    'Light Showers Rain': 'wi-showers',
+    'Heavy Showers Rain': 'wi-showers',
+    'Showers Rain': 'wi-showers',
+    'Showers Rain in Vicinity': 'wi-showers',
+    'Rain Showers Fog/Mist': 'wi-showers',
+    'Light Rain Showers Fog/Mist': 'wi-showers',
+    'Heavy Rain Showers Fog/Mist': 'wi-showers',
+    'Rain Showers in Vicinity Fog/Mist': 'wi-showers',
+    'Light Showers Rain Fog/Mist': 'wi-showers',
+    'Heavy Showers Rain Fog/Mist': 'wi-showers',
+    'Showers Rain Fog/Mist': 'wi-showers',
+    'Showers Rain in Vicinity Fog/Mist': 'wi-showers',
+    'Thunderstorm': 'wi-thunderstorm',
+    'Thunderstorm Rain': 'wi-thunderstorm',
+    'Light Thunderstorm Rain': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain': 'wi-thunderstorm',
+    'Thunderstorm Rain Fog/Mist': 'wi-thunderstorm',
+    'Light Thunderstorm Rain Fog/Mist': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain Fog and Windy': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain Fog/Mist': 'wi-thunderstorm',
+    'Thunderstorm Showers in Vicinity': 'wi-thunderstorm',
+    'Light Thunderstorm Rain Haze': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain Haze': 'wi-thunderstorm',
+    'Thunderstorm Fog': 'wi-thunderstorm',
+    'Light Thunderstorm Rain Fog': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain Fog': 'wi-thunderstorm',
+    'Thunderstorm Light Rain': 'wi-thunderstorm',
+    'Thunderstorm Heavy Rain': 'wi-thunderstorm',
+    'Thunderstorm Rain Fog/Mist': 'wi-thunderstorm',
+    'Thunderstorm Light Rain Fog/Mist': 'wi-thunderstorm',
+    'Thunderstorm Heavy Rain Fog/Mist': 'wi-thunderstorm',
+    'Thunderstorm in Vicinity Fog/Mist': 'wi-thunderstorm',
+    'Thunderstorm Showers in Vicinity': 'wi-thunderstorm',
+    'Thunderstorm in Vicinity Haze': 'wi-thunderstorm',
+    'Thunderstorm Haze in Vicinity': 'wi-thunderstorm',
+    'Thunderstorm Light Rain Haze': 'wi-thunderstorm',
+    'Thunderstorm Heavy Rain Haze': 'wi-thunderstorm',
+    'Thunderstorm Fog': 'wi-thunderstorm',
+    'Thunderstorm Light Rain Fog': 'wi-thunderstorm',
+    'Thunderstorm Heavy Rain Fog': 'wi-thunderstorm',
+    'Thunderstorm Hail': 'wi-thunderstorm',
+    'Light Thunderstorm Rain Hail': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain Hail': 'wi-thunderstorm',
+    'Thunderstorm Rain Hail Fog/Mist': 'wi-thunderstorm',
+    'Light Thunderstorm Rain Hail Fog/Mist': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain Hail Fog/Hail': 'wi-thunderstorm',
+    'Thunderstorm Showers in Vicinity Hail': 'wi-thunderstorm',
+    'Light Thunderstorm Rain Hail Haze': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain Hail Haze': 'wi-thunderstorm',
+    'Thunderstorm Hail Fog': 'wi-thunderstorm',
+    'Light Thunderstorm Rain Hail Fog': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain Hail Fog': 'wi-thunderstorm',
+    'Thunderstorm Light Rain Hail': 'wi-thunderstorm',
+    'Thunderstorm Heavy Rain Hail': 'wi-thunderstorm',
+    'Thunderstorm Rain Hail Fog/Mist': 'wi-thunderstorm',
+    'Thunderstorm Light Rain Hail Fog/Mist': 'wi-thunderstorm',
+    'Thunderstorm Heavy Rain Hail Fog/Mist': 'wi-thunderstorm',
+    'Thunderstorm in Vicinity Hail': 'wi-thunderstorm',
+    'Thunderstorm in Vicinity Hail Haze': 'wi-thunderstorm',
+    'Thunderstorm Haze in Vicinity Hail': 'wi-thunderstorm',
+    'Thunderstorm Light Rain Hail Haze': 'wi-thunderstorm',
+    'Thunderstorm Heavy Rain Hail Haze': 'wi-thunderstorm',
+    'Thunderstorm Hail Fog': 'wi-thunderstorm',
+    'Thunderstorm Light Rain Hail Fog': 'wi-thunderstorm',
+    'Thunderstorm Heavy Rain Hail Fog': 'wi-thunderstorm',
+    'Thunderstorm Small Hail/Snow Pellets': 'wi-thunderstorm',
+    'Thunderstorm Rain Small Hail/Snow Pellets': 'wi-thunderstorm',
+    'Light Thunderstorm Rain Small Hail/Snow Pellets': 'wi-thunderstorm',
+    'Heavy Thunderstorm Rain Small Hail/Snow Pellets': 'wi-thunderstorm',
+    'Snow': 'wi-snow',
+    'Light Snow': 'wi-snow',
+    'Heavy Snow': 'wi-snow',
+    'Snow Showers': 'wi-snow',
+    'Light Snow Showers': 'wi-snow',
+    'Heavy Snow Showers': 'wi-snow',
+    'Showers Snow': 'wi-snow',
+    'Light Showers Snow': 'wi-snow',
+    'Heavy Showers Snow': 'wi-snow',
+    'Snow Fog/Mist': 'wi-snow',
+    'Light Snow Fog/Mist': 'wi-snow',
+    'Heavy Snow Fog/Mist': 'wi-snow',
+    'Snow Showers Fog/Mist': 'wi-snow',
+    'Light Snow Showers Fog/Mist': 'wi-snow',
+    'Heavy Snow Showers Fog/Mist': 'wi-snow',
+    'Showers Snow Fog/Mist': 'wi-snow',
+    'Light Showers Snow Fog/Mist': 'wi-snow',
+    'Heavy Showers Snow Fog/Mist': 'wi-snow',
+    'Snow Fog': 'wi-snow',
+    'Light Snow Fog': 'wi-snow',
+    'Heavy Snow Fog': 'wi-snow',
+    'Snow Showers Fog': 'wi-snow',
+    'Light Snow Showers Fog': 'wi-snow',
+    'Heavy Snow Showers Fog': 'wi-snow',
+    'Showers Snow Fog': 'wi-snow',
+    'Light Showers Snow Fog': 'wi-snow',
+    'Heavy Showers Snow Fog': 'wi-snow',
+    'Showers in Vicinity Snow': 'wi-snow',
+    'Snow Showers in Vicinity': 'wi-snow',
+    'Snow Showers in Vicinity Fog/Mist': 'wi-snow',
+    'Snow Showers in Vicinity Fog': 'wi-snow',
+    'Low Drifting Snow': 'wi-snow',
+    'Blowing Snow': 'wi-snow',
+    'Snow Low Drifting Snow': 'wi-snow',
+    'Snow Blowing Snow': 'wi-snow',
+    'Light Snow Low Drifting Snow': 'wi-snow',
+    'Light Snow Blowing Snow': 'wi-snow',
+    'Light Snow Blowing Snow Fog/Mist': 'wi-snow',
+    'Heavy Snow Low Drifting Snow': 'wi-snow',
+    'Heavy Snow Blowing Snow': 'wi-snow',
+    'Thunderstorm Snow': 'wi-snow',
+    'Light Thunderstorm Snow': 'wi-snow',
+    'Heavy Thunderstorm Snow': 'wi-snow',
+    'Snow Grains': 'wi-snow',
+    'Light Snow Grains': 'wi-snow',
+    'Heavy Snow Grains': 'wi-snow',
+    'Heavy Blowing Snow': 'wi-snow',
+    'Blowing Snow in Vicinity':  'wi-snow',
+    'Showers in Vicinity': 'wi-showers',
+    'Showers in Vicinity Fog/Mist': 'wi-showers',
+    'Showers in Vicinity Fog': 'wi-showers',
+    'Showers in Vicinity Haze': 'wi-showers',
+    'Freezing Rain Rain': 'wi-rain-mix',
+    'Light Freezing Rain Rain': 'wi-rain-mix',
+    'Heavy Freezing Rain Rain': 'wi-rain-mix',
+    'Rain Freezing Rain': 'wi-rain-mix',
+    'Light Rain Freezing Rain': 'wi-rain-mix',
+    'Heavy Rain Freezing Rain': 'wi-rain-mix',
+    'Freezing Drizzle Rain': 'wi-rain-mix',
+    'Light Freezing Drizzle Rain': 'wi-rain-mix',
+    'Heavy Freezing Drizzle Rain': 'wi-rain-mix',
+    'Rain Freezing Drizzle': 'wi-rain-mix',
+    'Light Rain Freezing Drizzle': 'wi-rain-mix',
+    'Heavy Rain Freezing Drizzle': 'wi-rain-mix',
+    'Thunderstorm in Vicinity': 'wi-thunderstorm',
+    'Thunderstorm in Vicinity Fog': 'wi-thunderstorm',
+    'Thunderstorm in Vicinity Haze': 'wi-thunderstorm',
+    'Light Rain': 'wi-sprinkle',
+    'Drizzle': 'wi-sprinkle',
+    'Light Drizzle': 'wi-sprinkle',
+    'Heavy Drizzle': 'wi-sprinkle',
+    'Light Rain Fog/Mist': 'wi-sprinkle',
+    'Drizzle Fog/Mist': 'wi-sprinkle',
+    'Light Drizzle Fog/Mist': 'wi-sprinkle',
+    'Heavy Drizzle Fog/Mist': 'wi-sprinkle',
+    'Light Rain Fog': 'wi-sprinkle',
+    'Drizzle Fog': 'wi-sprinkle',
+    'Light Drizzle Fog': 'wi-sprinkle',
+    'Heavy Drizzle Fog': 'wi-sprinkle',
+    'Rain': 'wi-rain',
+    'Heavy Rain': 'wi-rain',
+    'Rain Fog/Mist': 'wi-rain',
+    'Heavy Rain Fog/Mist': 'wi-rain',
+    'Rain Fog': 'wi-rain',
+    'Heavy Rain Fog': 'wi-rain',
+    'Dust': 'wi-dust',
+    'Low Drifting Dust': 'wi-dust',
+    'Blowing Dust': 'wi-dust',
+    'Sand': 'wi-dust',
+    'Blowing Sand': 'wi-dust',
+    'Low Drifting Sand': 'wi-dust',
+    'Dust/Sand Whirls': 'wi-dust',
+    'Dust/Sand Whirls in Vicinity': 'wi-dust',
+    'Dust Storm': 'wi-dust',
+    'Heavy Dust Storm': 'wi-dust',
+    'Dust Storm in Vicinity': 'wi-dust',
+    'Sand Storm': 'wi-dust',
+    'Heavy Sand Storm': 'wi-dust',
+    'Sand Storm in Vicinity': 'wi-dust',
+    'Smoke': 'wi-smoke',
+    'Haze': 'wi-haze'
+};
+
+var icon = weatherIcons['{{weather.currentobservation.Weather}}'];
+document.getElementById('icon').classList = ['icon wi ' + icon];
+
+</script>
+</body>
+</html>
